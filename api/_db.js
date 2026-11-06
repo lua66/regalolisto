@@ -1,6 +1,9 @@
 // Conexión a Redis (Upstash) por REST, sin dependencias
-const URL_DB = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+// Busca las claves de Upstash con cualquier prefijo (KV_, STORAGE_, UPSTASH_REDIS_...)
+const buscar = (fin) => process.env["KV" + fin] || process.env["UPSTASH_REDIS" + fin] ||
+  Object.entries(process.env).find(([k]) => k.endsWith(fin) && !k.includes("READ_ONLY"))?.[1];
+const URL_DB = buscar("_REST_API_URL") || buscar("_REST_URL");
+const TOKEN = buscar("_REST_API_TOKEN") || buscar("_REST_TOKEN");
 
 async function pipeline(cmds) {
   if (!URL_DB || !TOKEN) throw new Error("Base de datos no configurada");
