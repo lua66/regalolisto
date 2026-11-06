@@ -2,7 +2,7 @@
 const crypto = require("crypto");
 const { pipeline, configurada } = require("./_db");
 const igual = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && crypto.timingSafeEqual(x, y); };
-const PATRONES = ["vistas*", "clics*", "visitas*", "sesiones", "clicsdia"];
+const PATRONES = ["vistas*", "clics*", "visitas*", "sesiones", "clicsdia", "canal:*"];
 
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");

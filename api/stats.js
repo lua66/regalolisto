@@ -25,12 +25,14 @@ module.exports = async (req, res) => {
       ["HGETALL", "vistas"], ["HGETALL", "clics"], ["HGETALL", "visitas:total"],
       ["HGETALL", "vistas:" + d], ["HGETALL", "clics:" + d], ["HGETALL", "visitas:" + d],
       ["HMGET", "sesiones", ...dias], ["HMGET", "clicsdia", ...dias],
+      ["HGETALL", "canal:visitas"], ["HGETALL", "canal:clics"],
     ]);
     const obj = (a) => { const o = {}; for (let i = 0; a && i < a.length; i += 2) o[a[i]] = +a[i + 1]; return o; };
     res.status(200).json({
       hoy: d, vistas: obj(r[0]), clics: obj(r[1]), visitas: obj(r[2]),
       vistasHoy: obj(r[3]), clicsHoy: obj(r[4]), visitasHoy: obj(r[5]),
       dias, sesionesDia: r[6].map((x) => +x || 0), clicsDia: r[7].map((x) => +x || 0),
+      canalVisitas: obj(r[8]), canalClics: obj(r[9]),
     });
   } catch (e) { res.status(503).json({ error: e.message }); }
 };

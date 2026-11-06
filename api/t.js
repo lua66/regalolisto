@@ -2,6 +2,7 @@
 const { pipeline, hoy } = require("./_db");
 const BOTS = /bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegram|preview|lighthouse|headless/i;
 const PAGINAS = ["inicio", "regalos", "tecnologia", "juguetes", "belleza", "hogar"];
+const CANALES = ["pin", "tt", "ig", "fb", "wa", "tg", "yt", "x", "google", "directo", "otro"];
 
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
@@ -16,11 +17,15 @@ module.exports = async (req, res) => {
   const cmds = [];
   if (b.e === "v" && PAGINAS.includes(b.p)) {
     cmds.push(["HINCRBY", "visitas:" + d, b.p, 1], ["HINCRBY", "visitas:total", b.p, 1]);
-    if (b.nueva) cmds.push(["HINCRBY", "sesiones", d, 1]);
+    if (b.nueva) {
+      cmds.push(["HINCRBY", "sesiones", d, 1]);
+      if (CANALES.includes(b.canal)) cmds.push(["HINCRBY", "canal:visitas", b.canal, 1]);
+    }
   } else if (b.e === "i" && Array.isArray(b.a)) {
     b.a.filter(asin).slice(0, 12).forEach((a) => cmds.push(["HINCRBY", "vistas", a, 1], ["HINCRBY", "vistas:" + d, a, 1]));
   } else if (b.e === "c" && asin(b.a)) {
     cmds.push(["HINCRBY", "clics", b.a, 1], ["HINCRBY", "clics:" + d, b.a, 1], ["HINCRBY", "clicsdia", d, 1]);
+    if (CANALES.includes(b.canal)) cmds.push(["HINCRBY", "canal:clics", b.canal, 1]);
   }
   if (!cmds.length) return res.status(400).end();
   try { await pipeline(cmds); res.status(204).end(); }
